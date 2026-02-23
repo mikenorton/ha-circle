@@ -7,6 +7,6 @@
   "documentation": "https://github.com/your-repo/ha-circle",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
-  "requirements": ["pycognito==2024.5.1"],
+  "requirements": [],
   "version": "1.0.0"
 }

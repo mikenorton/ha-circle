@@ -1,0 +1,57 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Meet Circle",
+        "description": "Enter your Circle account credentials and device ID.",
+        "data": {
+          "email": "Email Address",
+          "password": "Password",
+          "device_id": "Device ID"
+        },
+        "data_description": {
+          "device_id": "The device ID from your Circle app. You can find this in the Charles Proxy logs or use the one from your iOS app."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate with Meet Circle",
+        "description": "Your Circle session has expired. Please re-enter your password.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "cannot_connect": "Unable to connect to Circle servers.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This Circle account is already configured.",
+      "reauth_successful": "Re-authentication successful."
+    }
+  },
+  "entity": {
+    "switch": {
+      "internet_access": {
+        "name": "Internet Access"
+      }
+    },
+    "sensor": {
+      "bedtime_weekday": {
+        "name": "Weekday Bedtime"
+      },
+      "bedtime_weekend": {
+        "name": "Weekend Bedtime"
+      },
+      "profile_mode": {
+        "name": "Profile Mode"
+      }
+    },
+    "button": {
+      "late_bedtime": {
+        "name": "Late Bedtime Reward"
+      }
+    }
+  }
+}

@@ -423,4 +423,5 @@ class CircleApiClient:
             "startMinutes": str(minutes),
             "user.pid": str(pid),
         }
+        _LOGGER.debug("send_late_bedtime params: %s", params)
         return await self._request(ADD_EXTENSION_URL, params=params)

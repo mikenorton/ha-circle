@@ -9,6 +9,7 @@ from typing import Any
 from homeassistant.components.select import SelectEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -92,6 +93,16 @@ async def async_setup_entry(
     """Set up Circle late bedtime reward select entities."""
     coordinator: CircleCoordinator = hass.data[DOMAIN][entry.entry_id]
 
+    # Remove orphaned button entities from before the select migration
+    ent_reg = er.async_get(hass)
+    for ent_entry in er.async_entries_for_config_entry(ent_reg, entry.entry_id):
+        if (
+            ent_entry.domain == "button"
+            and ent_entry.unique_id.endswith("_late_bedtime")
+        ):
+            _LOGGER.debug("Removing orphaned button entity %s", ent_entry.entity_id)
+            ent_reg.async_remove(ent_entry.entity_id)
+
     entities = []
     for pid, profile in coordinator.data["profiles"].items():
         if (
@@ -135,11 +146,20 @@ class CircleLateBedtimeSelect(CoordinatorEntity[CircleCoordinator], SelectEntity
         profile = self.coordinator.data["profiles"].get(self._pid, {})
         bt, bt_id = _get_active_bedtime(profile)
         if bt is None or bt.get("state") == "disabled":
+            _LOGGER.debug(
+                "Profile %s: bedtime is None or disabled (bt=%s)", self._pid, bt
+            )
             return None, bt_id
-        start_str = bt.get("start")
-        if start_str is None:
+        start_val = bt.get("start")
+        if start_val is None:
+            _LOGGER.debug("Profile %s: bedtime has no 'start' field", self._pid)
             return None, bt_id
-        return _parse_bedtime_start(start_str), bt_id
+        parsed = _parse_bedtime_start(str(start_val))
+        if parsed is None:
+            _LOGGER.warning(
+                "Profile %s: could not parse bedtime start %r", self._pid, start_val
+            )
+        return parsed, bt_id
 
     @property
     def options(self) -> list[str]:
@@ -157,16 +177,27 @@ class CircleLateBedtimeSelect(CoordinatorEntity[CircleCoordinator], SelectEntity
 
     async def async_select_option(self, option: str) -> None:
         """Handle a time selection - send the late bedtime reward."""
+        _LOGGER.debug("Profile %s: selected option %r", self._pid, option)
         bedtime_start, offtime_id = self._get_bedtime_info()
 
         if bedtime_start is None or offtime_id is None:
             _LOGGER.warning(
-                "No active bedtime for profile %s, cannot send reward",
+                "No active bedtime for profile %s (start=%s, offtime_id=%s)",
                 self._pid,
+                bedtime_start,
+                offtime_id,
             )
             return
 
         minutes = _minutes_offset(bedtime_start, option)
+        _LOGGER.debug(
+            "Profile %s: bedtime_start=%s, selected=%s, offset=%s min, offtime_id=%s",
+            self._pid,
+            bedtime_start,
+            option,
+            minutes,
+            offtime_id,
+        )
         if minutes is None or minutes <= 0:
             _LOGGER.error(
                 "Could not calculate offset for selected time: %s", option
@@ -178,6 +209,7 @@ class CircleLateBedtimeSelect(CoordinatorEntity[CircleCoordinator], SelectEntity
             offtime_id=offtime_id,
             minutes=minutes,
         )
+        _LOGGER.debug("Profile %s: late bedtime reward sent (%s min)", self._pid, minutes)
 
         # Keep current_option as None so the user can pick the same time again
         self._attr_current_option = None

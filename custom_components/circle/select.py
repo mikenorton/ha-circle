@@ -13,6 +13,7 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
 from .coordinator import CircleCoordinator
@@ -208,6 +209,7 @@ class CircleLateBedtimeSelect(CoordinatorEntity[CircleCoordinator], SelectEntity
             pid=self._pid,
             offtime_id=offtime_id,
             minutes=minutes,
+            target_date=dt_util.now().date(),
         )
         _LOGGER.warning("Profile %s: late bedtime reward sent (%s min)", self._pid, minutes)
 

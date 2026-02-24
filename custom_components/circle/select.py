@@ -177,7 +177,7 @@ class CircleLateBedtimeSelect(CoordinatorEntity[CircleCoordinator], SelectEntity
 
     async def async_select_option(self, option: str) -> None:
         """Handle a time selection - send the late bedtime reward."""
-        _LOGGER.debug("Profile %s: selected option %r", self._pid, option)
+        _LOGGER.warning("Profile %s: selected option %r", self._pid, option)
         bedtime_start, offtime_id = self._get_bedtime_info()
 
         if bedtime_start is None or offtime_id is None:
@@ -190,7 +190,7 @@ class CircleLateBedtimeSelect(CoordinatorEntity[CircleCoordinator], SelectEntity
             return
 
         minutes = _minutes_offset(bedtime_start, option)
-        _LOGGER.debug(
+        _LOGGER.warning(
             "Profile %s: bedtime_start=%s, selected=%s, offset=%s min, offtime_id=%s",
             self._pid,
             bedtime_start,
@@ -209,7 +209,7 @@ class CircleLateBedtimeSelect(CoordinatorEntity[CircleCoordinator], SelectEntity
             offtime_id=offtime_id,
             minutes=minutes,
         )
-        _LOGGER.debug("Profile %s: late bedtime reward sent (%s min)", self._pid, minutes)
+        _LOGGER.warning("Profile %s: late bedtime reward sent (%s min)", self._pid, minutes)
 
         # Keep current_option as None so the user can pick the same time again
         self._attr_current_option = None

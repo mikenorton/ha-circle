@@ -50,7 +50,7 @@ def _get_active_bedtime(
     profile: dict[str, Any],
 ) -> tuple[dict[str, Any] | None, int | None]:
     """Get the active bedtime dict and offtime ID for today's day type."""
-    day = datetime.now().weekday()
+    day = dt_util.now().weekday()
     # Friday (4) and Saturday (5) nights use weekend bedtime
     if day in (4, 5):
         bt = profile.get("bedtime_weekend") or profile.get("bedtime_weekday")
@@ -67,7 +67,7 @@ def _get_active_bedtime(
 
 def _generate_options(bedtime_start: time) -> list[str]:
     """Generate time options in 15-min increments after bedtime."""
-    base = datetime.combine(datetime.today(), bedtime_start)
+    base = datetime.combine(dt_util.now().date(), bedtime_start)
     return [
         _format_time((base + timedelta(minutes=offset)).time())
         for offset in range(LATE_BEDTIME_STEP, LATE_BEDTIME_MAX + 1, LATE_BEDTIME_STEP)
@@ -79,8 +79,9 @@ def _minutes_offset(bedtime_start: time, selected: str) -> int | None:
     selected_time = _parse_bedtime_start(selected)
     if selected_time is None:
         return None
-    base = datetime.combine(datetime.today(), bedtime_start)
-    sel = datetime.combine(datetime.today(), selected_time)
+    today = dt_util.now().date()
+    base = datetime.combine(today, bedtime_start)
+    sel = datetime.combine(today, selected_time)
     if sel <= base:
         sel += timedelta(days=1)  # handle midnight crossing
     return int((sel - base).total_seconds() // 60)

@@ -48,7 +48,7 @@
         "name": "Profile Mode"
       }
     },
-    "button": {
+    "select": {
       "late_bedtime": {
         "name": "Late Bedtime Reward"
       }

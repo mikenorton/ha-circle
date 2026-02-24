@@ -27,7 +27,6 @@ CONF_REFRESH_TOKEN = "refresh_token"
 
 # Defaults
 DEFAULT_SCAN_INTERVAL = 300  # 5 minutes in seconds
-DEFAULT_LATE_BEDTIME_MINUTES = 15
 
 # User-Agent to mimic the iOS app
 USER_AGENT = "Circle-iOS / 2.34.0 2226 | Parent | Apple | iPhone16,1 | iOS 26.1 | Phone"
